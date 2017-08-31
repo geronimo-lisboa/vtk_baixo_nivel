@@ -75,53 +75,11 @@ public:
 	int RenderVolumetricGeometry(vtkViewport *view)
 	{
 		std::cout << __FUNCTION__ << std::endl;
-		return 0;
-	}
 
-	int RenderOverlay(vtkViewport *)
-	{
-		std::cout << __FUNCTION__ << std::endl;
-		return 0;
-	}
-
-	bool RenderFilteredOpaqueGeometry(vtkViewport *v, vtkInformation *requiredKeys)
-	{
-		std::cout << __FUNCTION__ << std::endl;
-		return false;
-	}
-
-	bool RenderFilteredTranslucentPolygonalGeometry(vtkViewport *v, vtkInformation *requiredKeys)
-	{
-		std::cout << __FUNCTION__ << std::endl;
-		return false;
-	}
-
-
-	bool RenderFilteredVolumetricGeometry(vtkViewport *v, vtkInformation *requiredKeys)
-	{
-		std::cout << __FUNCTION__ << std::endl;
-		return false;
-	}
-	bool RenderFilteredOverlay(vtkViewport *v, vtkInformation *requiredKeys)
-	{
-		std::cout << __FUNCTION__ << std::endl;
-		return false;
-	}
-
-	double* GetBounds() override
-	{
-		return bounds.data();
-	}
-};
-
-class myRenderPassExperimento : public vtkRenderPass
-{
-public:
-	void Render(const vtkRenderState *s) override
-	{
-		//Primeiro experimento bem sucedido com backend grᦩco setado pra opengl2
+		//Primeiro experimento bem sucedido com backend grafico setado pra opengl2
 		cout << __FUNCTION__ << endl;
-		vtkWin32OpenGLRenderWindow *window = vtkWin32OpenGLRenderWindow::SafeDownCast( s->GetRenderer()->GetRenderWindow() );
+		vtkOpenGLRenderer *renderer = vtkOpenGLRenderer::SafeDownCast(view);
+		vtkWin32OpenGLRenderWindow *window = vtkWin32OpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
 		GLenum err = GL_NO_ERROR;
 		window->MakeCurrent();
 		glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
@@ -177,6 +135,57 @@ public:
 		// draw points 0-3 from the currently bound VAO with current in-use shader
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		err = glGetError();
+		return 0;
+	}
+
+	int RenderOverlay(vtkViewport *)
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		return 0;
+	}
+
+	bool RenderFilteredOpaqueGeometry(vtkViewport *v, vtkInformation *requiredKeys)
+	{
+		std::cout << __FUNCTION__ << std::endl;
+
+
+		return false;
+	}
+
+	bool RenderFilteredTranslucentPolygonalGeometry(vtkViewport *v, vtkInformation *requiredKeys)
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		return false;
+	}
+
+
+	bool RenderFilteredVolumetricGeometry(vtkViewport *v, vtkInformation *requiredKeys)
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		return false;
+	}
+	bool RenderFilteredOverlay(vtkViewport *v, vtkInformation *requiredKeys)
+	{
+		std::cout << __FUNCTION__ << std::endl;
+		return false;
+	}
+
+	double* GetBounds() override
+	{
+		return bounds.data();
+	}
+};
+
+class myRenderPassExperimento : public vtkRenderPass
+{
+public:
+	void Render(const vtkRenderState *s) override
+	{
+		const int propCount = s->GetPropArrayCount();
+		for (auto i = 0; i < propCount; i++)
+		{
+			s->GetPropArray()[i]->RenderVolumetricGeometry(s->GetRenderer()); //OpaqueGeometry(s->GetRenderer());
+		}
 
 		///////////SӠFUNCIONA NO OPENGL LEGADO////////
 		//GLenum error = GL_NO_ERROR;
