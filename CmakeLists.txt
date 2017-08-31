@@ -2,7 +2,8 @@ cmake_minimum_required(VERSION 2.8)
 project(experiencia-gpu)
 #Seta os paths da VTK e ITK
 set(ITK_DIR "C:/itk_nova/ITK_build")
-set(VTK_DIR "C:/VTK-7.0.0-build-opengl1")
+#set(VTK_DIR "C:/VTK-7.0.0-build-opengl1")
+set(VTK_DIR "C:/VTK-7.0.0-build")
 # Find ITK.
 find_package(ITK REQUIRED)
 include(${ITK_USE_FILE})
