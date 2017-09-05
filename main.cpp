@@ -578,6 +578,7 @@ int main(int argc, char** argv)
 	renderWindow->Render();
 	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 	renderWindowInteractor->SetRenderWindow(renderWindow);
+	renderer->ResetCamera();
 	renderWindowInteractor->Start();
 
 	return EXIT_SUCCESS;
