@@ -369,7 +369,7 @@ public:
 		ssVs << "in vec3 vp;" << endl;
 		ssVs << "uniform mat4 mvp;" << endl;
 		ssVs << "void main() {" << endl;
-		ssVs << "  gl_Position = vec4(vp, 1.0);" << endl;
+		ssVs << "  gl_Position = mvp * vec4(vp, 1.0);" << endl;
 		ssVs << "}" << endl;
 		stringstream ssFs;
 		ssFs<<"#version 400" << endl;
@@ -419,12 +419,17 @@ public:
 
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		//Comeca a usar o shader
 		glUseProgram(testeShader->GetProgramId());
+
 		glBindVertexArray(vao);//Estou trabalhando com os vertices do vao
 
 		vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
 		m->Identity();
-
+		double __dm[16];
+		vtkMatrix4x4::DeepCopy(__dm, m);
+		float _fm[16]; for (int i = 0; i < 16; i++) _fm[i] = __dm[i];
+		glUniformMatrix4fv(testeShader->GetUniform("mvp"), 1, false, _fm);
 
 		// draw points 0-3 from the currently bound VAO with current in-use shader
 		glDrawArrays(GL_TRIANGLES, 0, 3);
