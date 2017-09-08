@@ -121,7 +121,7 @@ namespace my3d
 		introspectProgram(programId, attributes, uniforms);
 	}
 
-	Shader::Shader(stringstream vsStream, stringstream fsStream)
+	Shader::Shader(stringstream& vsStream, stringstream& fsStream)
 	{
 		std::string vsSrc = vsStream.str();
 		vsId = MakeShader(GL_VERTEX_SHADER, vsSrc);

@@ -24,7 +24,7 @@ namespace my3d
 		GLuint static MakeProgram(GLuint vertex_shader, GLuint fragment_shader);
 	public:
 		Shader(string vsPath, string fsPath);
-		Shader(stringstream vsStream, stringstream fsStream);
+		Shader(stringstream& vsStream, stringstream& fsStream);
 		~Shader();
 		GLuint GetUniform(string name);
 		GLuint GetAttribute(string name);

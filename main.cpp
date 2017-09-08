@@ -163,7 +163,6 @@ private:
 	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //SEF
 	//	return v;
 	//}
-
 	//vector<GLfloat> defineColors()
 	//{
 	//	vector<GLfloat> vec;
@@ -211,105 +210,95 @@ private:
 	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
 	//	return vec;
 	//}
-	vector<GLfloat> defineNormals()
-	{
-		vector<GLfloat> v;
-		//-----------------1
-		v.push_back(0); v.push_back(0); v.push_back(1);
-		v.push_back(0); v.push_back(0); v.push_back(1);
-		v.push_back(0); v.push_back(0); v.push_back(1);
-
-		v.push_back(0); v.push_back(0); v.push_back(1);
-		v.push_back(0); v.push_back(0); v.push_back(1);
-		v.push_back(0); v.push_back(0); v.push_back(1);
-		//-----------------2
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-		v.push_back(0); v.push_back(0); v.push_back(-1);
-		//-----------------3
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-		v.push_back(0); v.push_back(-1); v.push_back(0);
-		//-----------------4
-		v.push_back(0); v.push_back(1); v.push_back(0);
-		v.push_back(0); v.push_back(1); v.push_back(0);
-		v.push_back(0); v.push_back(1); v.push_back(0);
-
-		v.push_back(0); v.push_back(1); v.push_back(0);
-		v.push_back(0); v.push_back(1); v.push_back(0);
-		v.push_back(0); v.push_back(1); v.push_back(0);
-		//-----------------5
-		v.push_back(1); v.push_back(0); v.push_back(0);
-		v.push_back(1); v.push_back(0); v.push_back(0);
-		v.push_back(1); v.push_back(0); v.push_back(0);
-
-		v.push_back(1); v.push_back(0); v.push_back(0);
-		v.push_back(1); v.push_back(0); v.push_back(0);
-		v.push_back(1); v.push_back(0); v.push_back(0);
-		//-----------------6
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-		v.push_back(-1); v.push_back(0); v.push_back(0);
-		return v;
-	}
-	vector<GLfloat> defineTexCoords()
-	{
-		vector<GLfloat> texCoords;
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-
-		texCoords.push_back(0.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		texCoords.push_back(0.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(1.0f);
-		texCoords.push_back(1.0f); texCoords.push_back(0.0f);
-		return texCoords;
-	}
+	//vector<GLfloat> defineNormals()
+	//{
+	//	vector<GLfloat> v;
+	//	//-----------------1
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	v.push_back(0); v.push_back(0); v.push_back(1);
+	//	//-----------------2
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	v.push_back(0); v.push_back(0); v.push_back(-1);
+	//	//-----------------3
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	v.push_back(0); v.push_back(-1); v.push_back(0);
+	//	//-----------------4
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	v.push_back(0); v.push_back(1); v.push_back(0);
+	//	//-----------------5
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	v.push_back(1); v.push_back(0); v.push_back(0);
+	//	//-----------------6
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	v.push_back(-1); v.push_back(0); v.push_back(0);
+	//	return v;
+	//}
+	//
+	//vector<GLfloat> defineTexCoords()
+	//{
+	//	vector<GLfloat> texCoords;
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	texCoords.push_back(0.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(1.0f);
+	//	texCoords.push_back(1.0f); texCoords.push_back(0.0f);
+	//	return texCoords;
+	//}
 	void Init()
 	{
 		GLenum err = GL_NO_ERROR;
@@ -370,13 +359,31 @@ public:
 		}
 	}
 
+	shared_ptr<my3d::Shader> testeShader;
+
 	void InitVer2()
 	{
+		//Cria o shader
+		stringstream ssVs;
+		ssVs << "#version 400" << endl;
+		ssVs << "in vec3 vp;" << endl;
+		ssVs << "uniform mat4 mvp;" << endl;
+		ssVs << "void main() {" << endl;
+		ssVs << "  gl_Position = vec4(vp, 1.0);" << endl;
+		ssVs << "}" << endl;
+		stringstream ssFs;
+		ssFs<<"#version 400" << endl;
+		ssFs << "out vec4 frag_colour;" << endl;
+		ssFs << "void main() {" << endl;
+		ssFs << "  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);" << endl;
+		ssFs << "}" << endl;
+		testeShader = make_shared<my3d::Shader>(ssVs, ssFs);
+
 		GLenum err = glGetError();
 
+		//Cria a geometria
 		glGenVertexArrays(1, &vao);
 		glBindVertexArray(vao);
-
 		float points[] = {
 			0.0f, 0.5f, 0.0f,
 			0.5f, -0.5f, 0.0f,
@@ -386,6 +393,13 @@ public:
 		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
 		err = glGetError();
+
+		glUseProgram(testeShader->GetProgramId());
+		;
+		//Linka o vbo ao attrib 0
+		glEnableVertexAttribArray(testeShader->GetAttribute("vp"));
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glVertexAttribPointer(testeShader->GetAttribute("vp"), 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		alredyInitialized = true;
 	}
@@ -401,38 +415,17 @@ public:
 		glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
 		GLenum err = glGetError();
 
-		glEnableVertexAttribArray(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo);
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 		err = glGetError();
-		const char* vertex_shader =
-			"#version 400\n"
-			"in vec3 vp;"
-			"void main() {"
-			"  gl_Position = vec4(vp, 1.0);"
-			"}";
-		const char* fragment_shader =
-			"#version 400\n"
-			"out vec4 frag_colour;"
-			"void main() {"
-			"  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);"
-			"}";
-		GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-		glShaderSource(vs, 1, &vertex_shader, NULL);
-		glCompileShader(vs);
-		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-		glShaderSource(fs, 1, &fragment_shader, NULL);
-		glCompileShader(fs);
-		err = glGetError();
-		GLuint shader_programme = glCreateProgram();
-		glAttachShader(shader_programme, fs);
-		glAttachShader(shader_programme, vs);
-		glLinkProgram(shader_programme);
-		err = glGetError();
+
 		// wipe the drawing surface clear
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		glUseProgram(shader_programme);
-		glBindVertexArray(vao);
+		glUseProgram(testeShader->GetProgramId());
+		glBindVertexArray(vao);//Estou trabalhando com os vertices do vao
+
+		vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
+		m->Identity();
+
+
 		// draw points 0-3 from the currently bound VAO with current in-use shader
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		err = glGetError();
