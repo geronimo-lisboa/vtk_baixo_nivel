@@ -58,13 +58,13 @@ private:
 	std::array<double, 6> bounds;
 	vtkSmartPointer<myCustomMapper> mapper;
 	bool alredyInitialized;
-	GLuint vertexesVbo, colorsVbo, tcVbo, normalVbo, vao;//O vertex array object e seu vertex buffer object e vertex color object
+	GLuint vbo, colorsVbo, vao;//O vertex array object e seu vertex buffer object e vertex color object
 	std::unique_ptr<my3d::Shader> shader;
-	vector<GLfloat> vertexes, colors, texCoords, normalCoords;
+	vector<GLfloat> vertexes, colors;
 	myCustomProp3d()
 	{
 		bounds = { { 0, 1, 0, 1, 0, 1 } };
-		vao = 0; colorsVbo = 0; vertexesVbo = 0; normalVbo = 0;
+		vao = 0; colorsVbo = 0; vbo = 0;
 		alredyInitialized = false;
 		shader = nullptr;
 	}
@@ -83,20 +83,10 @@ private:
 		ss << "#version 400" << endl;
 		ss << "layout (location = 0) in vec3 vertex;" << endl;
 		ss << "layout (location = 1) in vec3 color;" << endl;
-		ss << "layout (location = 2) in vec2 texCoord;" << endl;
-		ss << "layout (location = 3) in vec3 normal;" << endl;
-		ss << "uniform mat4 modelMat;" << endl;
-		ss << "uniform mat4 cameraMat;" << endl;
 		ss << "out vec3 vertexColor;" << endl;
-		ss << "out vec2 vertexTexCoord;" << endl;
-		ss << "out vec3 fragNormal;" << endl;
-		ss << "out vec3 fragVert;" << endl;
 		ss << "void main(){" << endl;
-		ss << "  gl_Position = cameraMat * modelMat * vec4(vertex, 1.0);" << endl;
+		ss << "  gl_Position = vec4(vertex, 1.0);" << endl;
 		ss << "  vertexColor = color;" << endl;
-		ss << "  vertexTexCoord = texCoord;" << endl;
-		ss << "  fragNormal = normal;" << endl;
-		ss << "  fragVert = vertex;" << endl;
 		ss << "}";
 		return ss;
 	}
@@ -104,140 +94,123 @@ private:
 	{
 		stringstream ss;
 		ss << "#version 400" << endl;
-		ss << "layout (location =10) out vec3 color;" << endl;
-		ss << "uniform mat4 modelMat;" << endl;
-		ss << "uniform sampler2D textureSampler;" << endl;
-		ss << "uniform bool isUsandoTextura;" << endl;
-		ss << "uniform bool isUsandoIluminacao;" << endl;
-		ss << "uniform vec3 lightLocation;" << endl;
 		ss << "in vec3 vertexColor;" << endl;
-		ss << "in vec2 vertexTexCoord;" << endl;
-		ss << "in vec3 fragNormal;" << endl;
-		ss << "in vec3 fragVert;" << endl;
 		ss << "out vec4 finalColor;" << endl;
 		ss << "void main(){" << endl;
-		ss << "  if (!isUsandoTextura) {" << endl;
 		ss << "    finalColor = vec4(vertexColor, 1.0);" << endl;
-		ss << "  }else{" << endl;
-		ss << "    finalColor = texture(textureSampler, vertexTexCoord);" << endl;
-		ss << "  }" << endl;
-		ss << "  if (isUsandoIluminacao){" << endl;
-		ss << "    mat3 normalMatrix = transpose(inverse(mat3(modelMat)));" << endl;
-		ss << "    vec3 transformedNormal = normalize(normalMatrix * fragNormal);" << endl;//As normais estão em modelspace, isso aqui as leva pra world space
-		ss << "    vec3 fragPosition = vec3(modelMat * vec4(fragVert,1));" << endl;//A posição do fragmento atual em worldspace, necessária para calcular o angulo entre a normal do fragmento e a luz.
-		ss << "    vec3 surfaceToLight = lightLocation - fragPosition;" << endl;//Vetor do pixel (em wc) pra luz.
-		ss << "    float brightness = dot(transformedNormal, surfaceToLight)/ (length(surfaceToLight) * length(transformedNormal));" << endl;// O brilho é o cosseno do angulo entre a normal da superficie e o vetor do fragmento pra luz
-		ss << "    finalColor = vec4(finalColor[0]*brightness, finalColor[1]*brightness, finalColor[2]*brightness, 1.0);" << endl;
-		ss << "  }" << endl;
 		ss << "}";
 		return ss;
 	}
 	vector<GLfloat> defineVertexes()
 	{
 		vector<GLfloat> v;
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //IEF
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //IDF
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0); //SEF
-
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //IDF
-		v.push_back(1.0); v.push_back(1.0); v.push_back(1.0); //SDF
-		v.push_back(-1.0); v.push_back(1.0);  v.push_back(1.0);//SEF
-		//--------
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0); //IEB
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0); //IDB
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0); //SEB
-
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0); //IDB
-		v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0); //SDB
-		v.push_back(-1.0); v.push_back(1.0);  v.push_back(-1.0);//SEB
-		//--------
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEB
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);  //IDB
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0);  //IES
-
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);   //IDB
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0);  //SDB
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //SEB
-		//--------
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IEB
-		v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);  //IDB
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0);  //IES
-
-		v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);   //IDB
-		v.push_back(1.0); v.push_back(1.0); v.push_back(1.0);  //SDB
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0); //SEB
-		//------
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEF
-		v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0);  //SEF
-
-		v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0); //IDF
-		v.push_back(1.0); v.push_back(1.0); v.push_back(1.0); //SDF
-		v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //SEF
-		//------
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEF
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0);  //SEF
-
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
-		v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0);  //SDF
-		v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //SEF
+		v.push_back(-0.5); v.push_back(-0.5); v.push_back(0);
+		v.push_back(0.5); v.push_back(-0.5); v.push_back(0);
+		v.push_back(-0.5); v.push_back(0.5); v.push_back(0);
 		return v;
 	}
 	vector<GLfloat> defineColors()
 	{
-		vector<GLfloat> vec;
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
-
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
-
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
-
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
-
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
-
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
-
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-		vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
-
-		return vec;
+		vector<GLfloat> v;
+		v.push_back(0.0); v.push_back(0.0); v.push_back(0.0);
+		v.push_back(1.0); v.push_back(0.0); v.push_back(0.0);
+		v.push_back(1.0); v.push_back(1.0); v.push_back(0.0);
+		return v;
 	}
+	//vector<GLfloat> defineVertexes()
+	//{
+	//	vector<GLfloat> v;
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //IEF
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //IDF
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0); //SEF
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //IDF
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(1.0); //SDF
+	//	v.push_back(-1.0); v.push_back(1.0);  v.push_back(1.0);//SEF
+	//	//--------
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0); //IEB
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0); //IDB
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0); //SEB
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0); //IDB
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0); //SDB
+	//	v.push_back(-1.0); v.push_back(1.0);  v.push_back(-1.0);//SEB
+	//	//--------
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEB
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);  //IDB
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0);  //IES
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);   //IDB
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0);  //SDB
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //SEB
+	//	//--------
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IEB
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);  //IDB
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0);  //IES
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);   //IDB
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(1.0);  //SDB
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0); //SEB
+	//	//------
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEF
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0);  //SEF
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(-1.0); //IDF
+	//	v.push_back(1.0); v.push_back(1.0); v.push_back(1.0); //SDF
+	//	v.push_back(1.0); v.push_back(-1.0); v.push_back(1.0); //SEF
+	//	//------
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(-1.0);  //IEF
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0);  //SEF
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(-1.0);  //IDF
+	//	v.push_back(-1.0); v.push_back(1.0); v.push_back(1.0);  //SDF
+	//	v.push_back(-1.0); v.push_back(-1.0); v.push_back(1.0); //SEF
+	//	return v;
+	//}
+
+	//vector<GLfloat> defineColors()
+	//{
+	//	vector<GLfloat> vec;
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(0.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(1.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(0.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	vec.push_back(1.0); vec.push_back(0.0); vec.push_back(1.0);
+	//	return vec;
+	//}
 	vector<GLfloat> defineNormals()
 	{
 		vector<GLfloat> v;
@@ -346,13 +319,9 @@ private:
 		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
 		//2)Criar o cubo de suporte
 		vertexes = defineVertexes();
-		vertexesVbo = CreateBuffer<float>(GL_ARRAY_BUFFER, vertexes);
+		vbo = CreateBuffer<float>(GL_ARRAY_BUFFER, vertexes);
 		colors = defineColors();
 		colorsVbo = CreateBuffer<float>(GL_ARRAY_BUFFER, colors);
-		texCoords = defineTexCoords();
-		tcVbo = CreateBuffer<GLfloat>(GL_ARRAY_BUFFER, texCoords);
-		normalCoords = defineNormals();
-		normalVbo = CreateBuffer<GLfloat>(GL_ARRAY_BUFFER, normalCoords);
 
 		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
 
@@ -362,21 +331,15 @@ private:
 		shader->UseProgram();
 		GLuint vpLocation = shader->GetAttribute("vertex");
 		GLuint colorLocation = shader->GetAttribute("color");
-		GLuint texCoordLocation = shader->GetAttribute("texCoord");
-		GLuint normalLocation = shader->GetAttribute("normal");
+
 		glEnableVertexAttribArray(vpLocation);
 		glEnableVertexAttribArray(colorLocation);
-		glEnableVertexAttribArray(texCoordLocation);
-		glEnableVertexAttribArray(normalLocation);
+
 		glUseProgram(0);
-		glBindBuffer(GL_ARRAY_BUFFER, vertexesVbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
 		glVertexAttribPointer(vpLocation, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 		glBindBuffer(GL_ARRAY_BUFFER, colorsVbo);
 		glVertexAttribPointer(colorLocation, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glBindBuffer(GL_ARRAY_BUFFER, tcVbo);
-		glVertexAttribPointer(texCoordLocation, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		glBindBuffer(GL_ARRAY_BUFFER, normalVbo);
-		glVertexAttribPointer(normalLocation, 3, GL_FLOAT, GL_FALSE, 0, NULL);
 
 		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
 
@@ -407,65 +370,72 @@ public:
 		}
 	}
 
+	void InitVer2()
+	{
+		GLenum err = glGetError();
+
+		glGenVertexArrays(1, &vao);
+		glBindVertexArray(vao);
+
+		float points[] = {
+			0.0f, 0.5f, 0.0f,
+			0.5f, -0.5f, 0.0f,
+			-0.5f, -0.5f, 0.0f
+		};
+		glGenBuffers(1, &vbo);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glBufferData(GL_ARRAY_BUFFER, 9 * sizeof(float), points, GL_STATIC_DRAW);
+		err = glGetError();
+
+		alredyInitialized = true;
+	}
+
 	int RenderVolumetricGeometry(vtkViewport *view)
 	{
 		std::cout << __FUNCTION__ << std::endl;
-		glClearColor(0.8, 0, 0, 1);
-		glClear(GL_COLOR_BUFFER_BIT);
-		vtkOpenGLRenderer *renderer = vtkOpenGLRenderer::SafeDownCast(view);
-		vtkWin32OpenGLRenderWindow *window = vtkWin32OpenGLRenderWindow::SafeDownCast(renderer->GetRenderWindow());
-		GLenum err = GL_NO_ERROR;
-		window->MakeCurrent();
-		//Inicializa as coisas se não estiverem inicializadas.
 		if (!alredyInitialized)
-		{
-			Init();
-		}
-		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
-		//Agora a renderização
-		//O VP do MVP , multiplicação na ordem P V M
-		vtkSmartPointer<vtkMatrix4x4> projMatrix = renderer->GetActiveCamera()->GetProjectionTransformMatrix(renderer);
-		vtkSmartPointer<vtkMatrix4x4> viewMatrix = renderer->GetActiveCamera()->GetViewTransformMatrix();
-		vtkSmartPointer<vtkMatrix4x4> cameraMat = vtkSmartPointer<vtkMatrix4x4>::New();
-		vtkMatrix4x4::Multiply4x4(projMatrix, viewMatrix, cameraMat);
-		//A model
-		vtkSmartPointer<vtkMatrix4x4> modelMatrix = vtkSmartPointer<vtkMatrix4x4>::New();
-		modelMatrix->Identity();
-		//Começa a usar o programa
-		shader->UseProgram();
-		GLuint cameraMatLocation = shader->GetUniform("cameraMat");
-		GLuint modelMatLocation = shader->GetUniform("modelMat");
-		GLuint isUsandoTexturaLocation = shader->GetUniform("isUsandoTextura");
-		GLuint textureSamplerLocation = shader->GetUniform("textureSampler");
-		GLuint isUsandoIluminacaoLocation = shader->GetUniform("isUsandoIluminacao");
-		GLuint lightLocationLocation = shader->GetUniform("lightLocation");
-		array<float, 16> __cameraMat;
-		vtkMatrixToFloat(cameraMat, __cameraMat);
-		glUniformMatrix4fv(cameraMatLocation, 1, GL_FALSE, __cameraMat.data());
-		array<float, 16> __mModelMatrix;
-		vtkMatrixToFloat(modelMatrix, __mModelMatrix);
-		glUniformMatrix4fv(modelMatLocation, 1, GL_FALSE, __mModelMatrix.data());
-		glUniform1i(isUsandoTexturaLocation, false);
-		glUniform1i(isUsandoIluminacaoLocation, false);
-		glUniform3f(lightLocationLocation, 1.0, 5.0, -5.0);
+			InitVer2();
+		//Primeiro experimento bem sucedido com backend grᦩco setado pra opengl2
+		glClearDepth(1.0f);									// Depth Buffer Setup
+		glEnable(GL_DEPTH_TEST); // enable depth-testing
+		glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+		GLenum err = glGetError();
 
-		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
-		//Ativação da textura no shader
-		//glActiveTexture(GL_TEXTURE0);
-		//glUniform1i(textureSamplerLocation, /*GL_TEXTURE*/0);
-		//glBindTexture(GL_TEXTURE_2D, textura);
+		glEnableVertexAttribArray(0);
+		glBindBuffer(GL_ARRAY_BUFFER, vbo);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
+		err = glGetError();
+		const char* vertex_shader =
+			"#version 400\n"
+			"in vec3 vp;"
+			"void main() {"
+			"  gl_Position = vec4(vp, 1.0);"
+			"}";
+		const char* fragment_shader =
+			"#version 400\n"
+			"out vec4 frag_colour;"
+			"void main() {"
+			"  frag_colour = vec4(0.5, 0.0, 0.5, 1.0);"
+			"}";
+		GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+		glShaderSource(vs, 1, &vertex_shader, NULL);
+		glCompileShader(vs);
+		GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+		glShaderSource(fs, 1, &fragment_shader, NULL);
+		glCompileShader(fs);
+		err = glGetError();
+		GLuint shader_programme = glCreateProgram();
+		glAttachShader(shader_programme, fs);
+		glAttachShader(shader_programme, vs);
+		glLinkProgram(shader_programme);
+		err = glGetError();
+		// wipe the drawing surface clear
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		glUseProgram(shader_programme);
 		glBindVertexArray(vao);
-		GLuint vertexLocation = shader->GetAttribute("vertex");
-		glBindAttribLocation(shader->GetProgramId(), vertexLocation, "vertex");
-		GLuint colorLocation = shader->GetAttribute("color");
-		glBindAttribLocation(shader->GetProgramId(), colorLocation, "color");
-		GLuint texCoordLocation = shader->GetAttribute("texCoord");
-		glBindAttribLocation(shader->GetProgramId(), texCoordLocation, "texCoord");
-		GLuint normalLocation = shader->GetAttribute("normal");
-		glBindAttribLocation(shader->GetProgramId(), normalLocation, "normal");
-		glDrawArrays(GL_TRIANGLES, 0, vertexes.size() / 3);
-
-		err = glGetError(); if (err != GL_NO_ERROR) throw std::exception("erro");
+		// draw points 0-3 from the currently bound VAO with current in-use shader
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		err = glGetError();
 
 		return 1;
 	}
