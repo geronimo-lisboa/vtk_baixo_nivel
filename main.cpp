@@ -63,7 +63,7 @@ private:
 	vector<GLfloat> vertexes, colors;
 	myCustomProp3d()
 	{
-		bounds = { { 0, 1, 0, 1, 0, 1 } };
+		bounds = { { -0.5, 0.5, -0.5, -0.5, -0.5, 0.5 } };
 		vao = 0; colorsVbo = 0; vbo = 0;
 		alredyInitialized = false;
 		shader = nullptr;
@@ -409,25 +409,19 @@ public:
 		std::cout << __FUNCTION__ << std::endl;
 		if (!alredyInitialized)
 			InitVer2();
-		//Primeiro experimento bem sucedido com backend grᦩco setado pra opengl2
-		glClearDepth(1.0f);									// Depth Buffer Setup
-		glEnable(GL_DEPTH_TEST); // enable depth-testing
-		glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
 		GLenum err = glGetError();
 
 		err = glGetError();
 
 		// wipe the drawing surface clear
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
 		//Comeca a usar o shader
 		glUseProgram(testeShader->GetProgramId());
-
 		glBindVertexArray(vao);//Estou trabalhando com os vertices do vao
-
-		vtkSmartPointer<vtkMatrix4x4> m = vtkSmartPointer<vtkMatrix4x4>::New();
-		m->Identity();
+		//Passo a matriz pro shader
 		double __dm[16];
-		vtkMatrix4x4::DeepCopy(__dm, m);
+		vtkMatrix4x4::DeepCopy(__dm, vtkRenderer::SafeDownCast(view)->GetActiveCamera()->GetModelViewTransformMatrix());
 		float _fm[16]; for (int i = 0; i < 16; i++) _fm[i] = __dm[i];
 		glUniformMatrix4fv(testeShader->GetUniform("mvp"), 1, false, _fm);
 
@@ -435,7 +429,7 @@ public:
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		err = glGetError();
 
-		return 1;
+		return 0;
 	}
 
 	int RenderOverlay(vtkViewport *)
@@ -481,43 +475,16 @@ class myRenderPassExperimento : public vtkRenderPass
 public:
 	void Render(const vtkRenderState *s) override
 	{
+		glClearDepth(1.0f);									// Depth Buffer Setup
+		glEnable(GL_DEPTH_TEST); // enable depth-testing
+		glDepthFunc(GL_LESS); // depth-testing interprets a smaller value as "closer"
+
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		const int propCount = s->GetPropArrayCount();
 		for (auto i = 0; i < propCount; i++)
 		{
 			s->GetPropArray()[i]->RenderVolumetricGeometry(s->GetRenderer()); //OpaqueGeometry(s->GetRenderer());
 		}
-
-		///////////SӠFUNCIONA NO OPENGL LEGADO////////
-		//GLenum error = GL_NO_ERROR;
-		//vtkWin32OpenGLRenderWindow *window = vtkWin32OpenGLRenderWindow::SafeDownCast( s->GetRenderer()->GetRenderWindow() );
-		//glClearColor(0.0f, 0.0f, 0.0f, 0.5f);				// Black Background
-		//glClearDepth(1.0f);									// Depth Buffer Setup
-		//glEnable(GL_DEPTH_TEST);							// Enables Depth Testing
-		//glDepthFunc(GL_LEQUAL);								// The Type Of Depth Testing To Do
-		//glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);	// Really Nice Perspective Calculat
-		////window->Initialize();
-		//glMatrixMode(GL_PROJECTION);						// Select The Projection Matrix
-		//glLoadIdentity();									// Reset The Projection Matrix
-		//// Calculate The Aspect Ratio Of The Window
-		//gluPerspective(45.0f, (GLfloat)s->GetRenderer()->GetRenderWindow()->GetSize()[0]/ (GLfloat)window->GetSize()[1], 0.1f, 100.0f);
-		//glMatrixMode(GL_MODELVIEW);							// Select The Modelview Matrix
-		//glLoadIdentity();									// Reset The Modelview Matrix
-		//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);	// Clear Screen And Depth Buffer
-		//glLoadIdentity();									// Reset The Current Modelview Matrix
-		//glTranslatef(-1.5f, 0.0f, -6.0f);						// Move Left 1.5 Units And Into The Screen 6.0
-		//glBegin(GL_TRIANGLES);								// Drawing Using Triangles
-		//glVertex3f(0.0f, 1.0f, 0.0f);					// Top
-		//glVertex3f(-1.0f, -1.0f, 0.0f);					// Bottom Left
-		//glVertex3f(1.0f, -1.0f, 0.0f);					// Bottom Right
-		//glEnd();											// Finished Drawing The Triangle
-		//glTranslatef(3.0f, 0.0f, 0.0f);						// Move Right 3 Units
-		//glBegin(GL_QUADS);									// Draw A Quad
-		//glVertex3f(-1.0f, 1.0f, 0.0f);					// Top Left
-		//glVertex3f(1.0f, 1.0f, 0.0f);					// Top Right
-		//glVertex3f(1.0f, -1.0f, 0.0f);					// Bottom Right
-		//glVertex3f(-1.0f, -1.0f, 0.0f);					// Bottom Left
-		//glEnd();
-		//////SwapBuffers(window->GetMemoryDC());
 	}
 	static myRenderPassExperimento* New()
 	{
@@ -535,8 +502,9 @@ int main(int argc, char** argv)
 	//Como se renderiza algo na tela com VTK? Como minhas rotinas de desenho encaixar㯠nas rotinas da vtk?
 	//Cria a tela
 	vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-	renderer->SetBackground(0.8, 0, 0);
+	renderer->SetBackground(1, 0, 0);
 	renderer->AddViewProp(myProp3d);
+	renderer->GetActiveCamera()->ParallelProjectionOn();
 	vtkSmartPointer<myRenderPassExperimento> myRP = vtkSmartPointer<myRenderPassExperimento>::New();
 	vtkOpenGLRenderer::SafeDownCast(renderer)->SetPass(myRP);
 	vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
@@ -544,6 +512,7 @@ int main(int argc, char** argv)
 	renderWindow->AddRenderer(renderer);
 	renderWindow->SwapBuffersOn();
 	renderWindow->Render();
+
 	vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor = vtkSmartPointer<vtkRenderWindowInteractor>::New();
 	renderWindowInteractor->SetRenderWindow(renderWindow);
 	renderer->ResetCamera();
